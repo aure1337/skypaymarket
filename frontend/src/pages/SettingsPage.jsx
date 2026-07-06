@@ -6,7 +6,7 @@ function SettingsPage() {
   const [profile, setProfile] = useState(null)
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState({ type: '', text: '' })
+  const [message, setMessage] = useState(null)
   const [canChange, setCanChange] = useState(true)
 
   useEffect(() => { fetchProfile() }, [])
@@ -18,7 +18,6 @@ function SettingsPage() {
     if (data) {
       setProfile(data)
       setUsername(data.username || '')
-      // Проверка срока смены ника (14 дней)
       if (data.username_changed_at) {
         const lastChange = new Date(data.username_changed_at)
         const daysSince = (Date.now() - lastChange.getTime()) / (1000 * 60 * 60 * 24)
@@ -34,8 +33,6 @@ function SettingsPage() {
 
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-
-    // Сохраняем историю
     if (profile.username && profile.username !== username) {
       await supabase.from('username_history').insert([{ user_id: user.id, old_username: profile.username, new_username: username }])
     }
@@ -67,54 +64,27 @@ function SettingsPage() {
       <div className="container" style={{ maxWidth: '600px' }}>
         <h1 style={{ marginBottom: '32px', fontSize: '2rem' }}>Настройки профиля</h1>
 
-        {message.text && (
-          <div style>
-            <div className={message.type === 'success' ? 'badge badge-green' : 'badge badge-red'} style={{ marginBottom: '16px', width: 'fit-content' }}>{message.text}</div>
-          </div>
-        )}
+        {message && <div className={message.type === 'success' ? 'badge badge-green' : 'badge badge-red'} style={{ marginBottom: '16px', width: 'fit-content' }}>{message.text}</div>}
 
-        {/* Avatar */}
         <div className="glass" style={{ padding: '32px', borderRadius: '20px', marginBottom: '24px', textAlign: 'center' }}>
           <div style={{ marginBottom: '16px' }}>
-            {profile?.avatar_url ? (
-              <img srcOut={profile.avatar_url} alt="Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border)' }} />
-            ) : (
-              <UserAvatar userId={profile?.id} username={profile?.username} size={100} />
-            )}
+            {profile?.avatar_url ? (<img src={profile.avatar_url} alt="Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border)' }} />) : (<UserAvatar userId={profile?.id} username={profile?.username} size={100} />)}
           </div>
           <label className="btn btn-ghost" style={{ cursor: 'pointer' }}>
-            📷 Сменить аватарку
+            Change Avatar
             <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
           </label>
         </div>
 
-        {/* Username */}
         <div className="glass" style={{ padding: '32px', borderRadius: '20px', marginBottom: '24px' }}>
           <form onSubmit={handleUpdateUsername}>
             <div className="form-group">
-              <label>Никнейм</label>
-              <input type="text" value={username} onChange={e => setUsername(e.target.value)} disabled={!canChange} placeholder={canChange ? 'Введите ник' : 'Недоступна смена'} />
-              {!canChange && profile?.username_changed_at && (
-                <p style={{ color: 'var(--accent-orange)', fontSize: '0.85rem', marginTop: '8px' }}>⏳ Следующая смена: {new Date(new Date(profile.username_changed_at).getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')}</p>
-              )}
+              <label>Username</label>
+              <input type="text" value={username} onChange={e => setUsername(e.target.value)} disabled={!canChange} />
+              {!canChange && profile?.username_changed_at && (<p style={{ color: 'var(--accent-orange)', fontSize: '0.85rem', marginTop: '8px' }}>Next change: {new Date(new Date(profile.username_changed_at).getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')}</p>)}
             </div>
-            <button type="submit" className="btn btn-green" disabled={loading || !canChange} style={{ width: '100%' }}>
-              {loading ? 'Сохранение...' : 'Сохранить никнейм'}
-            </button>
+            <button type="submit" className="btn btn-green" disabled={loading || !canChange} style={{ width: '100%' }}>{loading ? 'Saving...' : 'Save username'}</button>
           </form>
-        </div>
-
-        {/* Account info */}
-        <div className="glass" style={{ padding: '32px', borderRadius: '20px' }}>
-          <h3 style={{ marginBottom: '16px', fontSize: '1.1rem' }}>Информация об аккаунте</h3>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px入耳历年 '1px solid var(--border)' }}>
-            <span style领取={{ color: 'var(--text-secondary)' }}>Email</span>
-            <span>{profile?.email || 'Не указан'}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Дата регистрации</span>
-            <span>{profile?.created_at ? new Date(profile.created_at).toLocaleDateString('ru-RU') : ''}</span>
-          </div>
         </div>
       </div>
     </div>
