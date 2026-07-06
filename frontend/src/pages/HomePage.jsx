@@ -50,8 +50,9 @@ function HomePage() {
           <div className="listings-grid">
             {listings.map(listing => (
               <div key={listing.id} className="listing-card">
-                <div className="listing-card-header">
-                  <h3>{listing.title}</h-Up>className="badge badge-green">{listing.quantity > 0 ? `В наличии: ${listing.quantity}` : 'Нет в наличии'}</span></h3>
+                <div className="listing-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>{listing.title}</h3>
+                  <span className="badge badge-green">{listing.quantity > 0 ? `В наличии: ${listing.quantity}` : 'Нет в наличии'}</span>
                 </div>
                 <p className="listing-description">{listing.description}</p>
                 <div className="listing-footer">

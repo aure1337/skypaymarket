@@ -14,7 +14,7 @@ import ChatPage from './pages/ChatPage'
 
 function App() {
   const [session, setSession] = useState(null)
-  const [isAuthOpen, setIsAuthOpen] = = false)
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [isListingOpen, setIsListingOpen] = useState(false)
 
   useEffect(() => {
