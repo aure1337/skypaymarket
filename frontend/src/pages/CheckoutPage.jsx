@@ -97,7 +97,7 @@ function CheckoutPage() {
                   {listing.quantity > 0 ? `Купить за ${listing.price * quantity} ₽` : 'Нет в наличии'}
                 </button>
 
-                {listing.quantity < 3 && listing.quantity > 0 && <p style={{ textAlign: 'center', marginTop: '12px', fontSizeSex рe: '0.85rem', color: 'var(--accent-orange)' }}>⚡ Осталось {listing.quantity} шт.</p>}
+                {listing.quantity < 3 && listing.quantity > 0 && <p style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.85rem', color: 'var(--accent-orange)' }}>⚡ Осталось {listing.quantity} шт.</p>}
               </div>
             </div>
           </div>
