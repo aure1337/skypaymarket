@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import ProfilePage from './pages/ProfilePage'
 import OrdersPage from './pages/OrdersPage'
 import ChatPage from './pages/ChatPage'
+import ChatsPage from './pages/ChatsPage'
 import SettingsPage from './pages/SettingsPage'
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/checkout/:id" element={<CheckoutPage />} />
             <Route path="/profile/:slug" element={<ProfilePage />} />
             <Route path="/orders" element={session ? <OrdersPage /> : <HomePage />} />
+            <Route path="/chats" element={session ? <ChatsPage /> : <HomePage />} />
             <Route path="/chat/:orderId" element={session ? <ChatPage /> : <HomePage />} />
             <Route path="/settings" element={session ? <SettingsPage /> : <HomePage />} />
           </Routes>

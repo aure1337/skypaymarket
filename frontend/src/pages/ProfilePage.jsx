@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import UserAvatar from '../components/UserAvatar'
@@ -46,11 +46,10 @@ function ProfilePage() {
   return (
     <div style={{ padding: '120px 0 40px' }}>
       <div className="container">
-        {/* Profile Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', padding: '40px', borderRadius: '24px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="profile-header">
           <UserAvatar userId={profile.id} username={profile.username} size={80} />
           <div>
-            <h1 style={{ marginBottom: '8px', fontSize: '2rem', fontWeight: 800 }}>@{profile.slug || profile.username}</h1>
+            <h1 style={{ marginBottom: '8px', fontSize: '2rem', fontWeight: 800 }}>{profile.slug || profile.username}</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>На сайте с {new Date(profile.created_at).toLocaleDateString('ru-RU')}</p>
             <div style={{ display: 'flex', gap: '24px', marginTop: '12px' }}>
               <div style={{ textAlign: 'center' }}>
@@ -58,18 +57,21 @@ function ProfilePage() {
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Рейтинг</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-orange)' }}>{profile.sales_count || 0}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-orange)' }}>{reviews.length}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Отзывов</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-green)' }}>{profile.sales_count || 0}</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Продаж</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="tabs" style={{ marginBottom: '24px' }}>
           <button className={activeTab === 'active' ? 'tab active' : 'tab'} onClick={() => setActiveTab('active')}>Активные ({activeListings.length})</button>
           <button className={activeTab === 'hidden' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hidden')}>Скрытые ({hiddenListings.length})</button>
-          <button className={activeTab === 'reviews' ? 'tab active' : 'tab'} onClick={() => setActiveTab('reviews')}> tensions ({reviews.length})</button>
+          <button className={activeTab === 'reviews' ? 'tab active' : 'tab'} onClick={() => setActiveTab('reviews')}>Тип ({reviews.length})</button>
         </div>
 
         {activeTab === 'active' && (
