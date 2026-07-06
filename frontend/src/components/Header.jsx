@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
+import UserAvatar from './UserAvatar'
 
 function Header({ session, onLoginClick, onLogout, onSellClick }) {
   return (
     <header>
-      <Link to="/" className="logo">FunPay Clone</Link>
+      <Link to="/" className="logo">SkyPay</Link>
       <div className="search-bar">
         <input type="text" placeholder="Поиск лотов..." />
       </div>
@@ -11,8 +12,11 @@ function Header({ session, onLoginClick, onLogout, onSellClick }) {
         {session ? (
           <>
             <button className="btn btn-orange" onClick={onSellClick}>Продать</button>
-            <Link to={`/profile/${session.user.id}`} className="btn">Профиль</Link>
-            <button className="btn" onClick={onLogout}>Выйти</button>
+            <Link to="/orders" className="btn btn-ghost">Заказы</Link>
+            <Link to={`/profile/${session.user.id}`} className="btn btn-ghost" style={{ padding: '6px', borderRadius: '50%' }} title="Профиль">
+              <UserAvatar userId={session.user.id} username={session.user.email} size={32} />
+            </Link>
+            <button className="btn btn-ghost" onClick={onLogout}>Выйти</button>
           </>
         ) : (
           <button className="btn btn-green" onClick={onLoginClick}>Войти</button>

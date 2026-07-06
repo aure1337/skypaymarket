@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
-function ListingModal({ onClose, userId }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [price, setPrice] = useState('')
-  const [category, setCategory] = useState('1')
+function ListingModal({ onClose, userId, editListing }) {
+  const isEditing = !!editListing
+  const [title, setTitle] = useState(editListing?.title || '')
+  const [description, setDescription] = useState(editListing?.description || '')
+  const [price, setPrice] = useState(editListing?.price || '')
+  const [quantity, setQuantity] = useState(editListing?.quantity || 1)
+  const [category, setCategory] = useState(editListing?.category_id?.toString() || '1')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -15,15 +17,24 @@ function ListingModal({ onClose, userId }) {
     setError(null)
 
     try {
-      const { error } = await supabase.from('listings').insert([{
+      const payload = {
         user_id: userId,
         category_id: parseInt(category),
         title,
         description,
         price: parseFloat(price),
+        quantity: parseInt(quantity),
         status: 'active'
-      }])
-      if (error) throw error
+      }
+
+      let result
+      if (isEditing) {
+        result = await supabase.from('listings').update(payload).eq('id', editListing.id)
+      } else {
+        result = await supabase.from('listings').insert([payload])
+      }
+
+      if (result.error) throw result.error
       onClose()
     } catch (err) {
       setError(err.message)
@@ -36,7 +47,7 @@ function ListingModal({ onClose, userId }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button>
-        <h2 className="modal-title">Создать лот</h2>
+        <h2 className="modal-title">{isEditing ? 'Редактировать лот' : 'Создать лот'}</h2>
         {error && <p style={{ color: '#ef4444', marginBottom: '16px' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -60,14 +71,20 @@ function ListingModal({ onClose, userId }) {
           </div>
           <div className="form-group">
             <label>Описание</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} required></textarea>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} required rows="3"></textarea>
           </div>
-          <div className="form-group">
-            <label>Цена (₽)</label>
-            <input type="number" value={price} onChange={e => setPrice(e.target.value)} required min="0" step="0.01" />
+          <div className="form-group" style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <label>Цена (₽)</label>
+              <input type="number" value={price} onChange={e => setPrice(e.target.value)} required min="0" step="0.01" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label>Количество</label>
+              <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} required min="1" />
+            </div>
           </div>
           <button type="submit" className="btn btn-green" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Создание...' : 'Создать лот'}
+            {loading ? 'Загрузка...' : (isEditing ? 'Обновить лот' : 'Создать лот')}
           </button>
         </form>
       </div>
