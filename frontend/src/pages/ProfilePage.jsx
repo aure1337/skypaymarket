@@ -52,8 +52,7 @@ function ProfilePage() {
         </div>
 
         <div className="tabs">
-          <button className={
- ${activeTab}='active' ? 'tab active' : 'tab'} onClick={() => setActiveTab('active')}>Активные лоты ({activeListings.length})</button>
+          <button className={activeTab === 'active' ? 'tab active' : 'tab'} onClick={() => setActiveTab('active')}>Активные лоты ({activeListings.length})</button>
           <button className={activeTab === 'hidden' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hidden')}>Скрытые лоты ({hiddenListings.length})</button>
           <button className={activeTab === 'reviews' ? 'tab active' : 'tab'} onClick={() => setActiveTab('reviews')}>Отзывы ({reviews.length})</button>
         </div>
