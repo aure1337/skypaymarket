@@ -1,7 +1,7 @@
 function Footer() {
   return (
     <footer>
-      <p>SkyPay e © {new Date().getFullYear()}</p>
+      <p>SkyPay © {new Date().getFullYear()}</p>
     </footer>
   )
 }
