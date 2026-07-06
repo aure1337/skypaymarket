@@ -5,7 +5,7 @@ import UserAvatar from '../components/UserAvatar'
 import ListingModal from '../components/ListingModal'
 
 function ProfilePage() {
-  const { id } = useParams()
+  const { slug } = useParams()
   const [profile, setProfile] = useState(null)
   const [activeListings, setActiveListings] = useState([])
   const [hiddenListings, setHiddenListings] = useState([])
@@ -14,24 +14,27 @@ function ProfilePage() {
   const [activeTab, setActiveTab] = useState('active')
   const [editingListing, setEditingListing] = useState(null)
 
-  useEffect(() => { fetchProfile(); fetchListings(); fetchReviews() }, [id])
+  useEffect(() => { fetchProfile() }, [slug])
 
   async function fetchProfile() {
-    const { data } = await supabase.from('profiles').select('*').eq('id', id).single()
+    const { data } = await supabase.from('profiles').select('*').or(`slug.eq.${slug},id.eq.${slug}`).single()
+    if (!data) { setLoading(false); return }
     setProfile(data)
+    fetchListings(data.id)
+    fetchReviews(data.id)
     setLoading(false)
   }
 
-  async function fetchListings() {
-    const { data } = await supabase.from('listings').select('*').eq('user_id', id)
+  async function fetchListings(userId) {
+    const { data } = await supabase.from('listings').select('*').eq('user_id', userId)
     if (data) {
       setActiveListings(data.filter(l => l.status === 'active'))
       setHiddenListings(data.filter(l => l.status !== 'active'))
     }
   }
 
-  async function fetchReviews() {
-    const { data } = await supabase.from('reviews').select('*, profiles(username)').eq('seller_id', id)
+  async function fetchReviews(userId) {
+    const { data } = await supabase.from('reviews').select('*, profiles(username)').eq('seller_id', userId)
     setReviews(data || [])
   }
 
@@ -43,18 +46,30 @@ function ProfilePage() {
   return (
     <div style={{ padding: '120px 0 40px' }}>
       <div className="container">
-        <div className="profile-header glass">
-          <UserAvatar userId={profile.id} username={profile.username} size={64} />
+        {/* Profile Header */}
+        <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', padding: '40px', borderRadius: '24px', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <UserAvatar userId={profile.id} username={profile.username} size={80} />
           <div>
-            <h1 style={{ marginBottom: '8px' }}>{profile.username}</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Рейтинг: {profile.rating || 0} ⭐ | Продаж: {profile.sales_count || 0}</p>
+            <h1 style={{ marginBottom: '8px', fontSize: '2rem', fontWeight: 800 }}>@{profile.slug || profile.username}</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>На сайте с {new Date(profile.created_at).toLocaleDateString('ru-RU')}</p>
+            <div style={{ display: 'flex', gap: '24px', marginTop: '12px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-green)' }}>{profile.rating || 0}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Рейтинг</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent-orange)' }}>{profile.sales_count || 0}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Продаж</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="tabs">
-          <button className={activeTab === 'active' ? 'tab active' : 'tab'} onClick={() => setActiveTab('active')}>Активные лоты ({activeListings.length})</button>
-          <button className={activeTab === 'hidden' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hidden')}>Скрытые лоты ({hiddenListings.length})</button>
-          <button className={activeTab === 'reviews' ? 'tab active' : 'tab'} onClick={() => setActiveTab('reviews')}>Отзывы ({reviews.length})</button>
+        {/* Tabs */}
+        <div className="tabs" style={{ marginBottom: '24px' }}>
+          <button className={activeTab === 'active' ? 'tab active' : 'tab'} onClick={() => setActiveTab('active')}>Активные ({activeListings.length})</button>
+          <button className={activeTab === 'hidden' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hidden')}>Скрытые ({hiddenListings.length})</button>
+          <button className={activeTab === 'reviews' ? 'tab active' : 'tab'} onClick={() => setActiveTab('reviews')}> tensions ({reviews.length})</button>
         </div>
 
         {activeTab === 'active' && (
@@ -66,7 +81,8 @@ function ProfilePage() {
                 <div className="listing-footer">
                   <span className="listing-price">{listing.price} ₽</span>
                   <span className="badge badge-green">{listing.quantity} шт.</span>
-                </div></div>
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -97,7 +113,7 @@ function ProfilePage() {
           </div>
         ))}
 
-        {editingListing && <ListingModal onClose={() => setEditingListing(null)} userId={id} editListing={editingListing} />}
+        {editingListing && <ListingModal onClose={() => setEditingListing(null)} userId={profile.id} editListing={editingListing} />}
       </div>
     </div>
   )

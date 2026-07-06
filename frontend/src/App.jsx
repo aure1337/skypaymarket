@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import ProfilePage from './pages/ProfilePage'
 import OrdersPage from './pages/OrdersPage'
 import ChatPage from './pages/ChatPage'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -18,12 +19,8 @@ function App() {
   const [isListingOpen, setIsListingOpen] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session) })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session) })
     return () => subscription.unsubscribe()
   }, [])
 
@@ -32,20 +29,16 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app">
-        <Header
-          session={session}
-          onLoginClick={() => setIsAuthOpen(true)}
-          onLogout={handleLogout}
-          onSellClick={() => setIsListingOpen(true)}
-        />
+        <Header session={session} onLoginClick={() => setIsAuthOpen(true)} onLogout={handleLogout} onSellClick={() => setIsListingOpen(true)} />
         <main style={{ paddingTop: '64px' }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/checkout/:id" element={<CheckoutPage />} />
-            <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/profile/:slug" element={<ProfilePage />} />
             <Route path="/orders" element={session ? <OrdersPage /> : <HomePage />} />
             <Route path="/chat/:orderId" element={session ? <ChatPage /> : <HomePage />} />
+            <Route path="/settings" element={session ? <SettingsPage /> : <HomePage />} />
           </Routes>
         </main>
         <Footer />
