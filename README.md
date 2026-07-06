@@ -1,6 +1,4 @@
-# FunPay Clone
-
-Клон маркetplace FunPay для покупки/продажи игровых ценностей и услуг.
+marketplace для покупки/продажи игровых ценностей и услуг.
 
 ## Стек
 - **Frontend:** React + Vite
